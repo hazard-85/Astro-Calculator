@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BKN Calc - Astrology Utilities</title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #121212;
+    color: #eee;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  header {
+    background: #1f1f1f;
+    padding: 1rem;
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #90caf9;
+  }
+  main {
+    flex-grow: 1;
+    max-width: 600px;
+    margin: 1rem auto;
+    background: #222;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.7);
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+  }
+  .tab-btn {
+    background: #333;
+    border: none;
+    color: #ccc;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    cursor: pointer;
+    border-radius: 5px 5px 0 0;
+    transition: background 0.3s, color 0.3s;
+    user-select: none;
+    font-size: 1rem;
+  }
+  .tab-btn.active {
+    background: #90caf9;
+    color: #121212;
+    font-weight: 700;
+  }
+  .tab-btn:hover:not(.active) {
+    background: #555;
+  }
+
+  /* Calculator Panels */
+  .panel {
+    display: none;
+    background: #181818;
+    padding: 1rem 1.5rem;
+    border-radius: 0 8px 8px 8px;
+  }
+  .panel.active {
+    display: block;
+  }
+
+  /* Inputs grid */
+  .inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem 1rem;
+    margin-bottom: 1rem;
+  }
+  label {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+    display: block;
+    color: #a0a0a0;
+  }
+  input[type=number] {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    background: #333;
+    color: #eee;
+    text-align: center;
+  }
+  input[type=number]:focus {
+    outline: 2px solid #90caf9;
+    background: #222;
+  }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  button.calc-btn {
+    background: #1976d2;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    color: white;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    user-select: none;
+    transition: background 0.25s;
+    min-width: 120px;
+  }
+  button.calc-btn:hover {
+    background: #1565c0;
+  }
+  button.calc-btn:active {
+    background: #0d47a1;
+  }
+
+  /* Result Box */
+  .result-box {
+    background: #222;
+    padding: 1rem;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    color: #90caf9;
+    min-height: 2.4rem;
+    user-select: text;
+  }
+
+  /* Footer */
+  footer {
+    background: #1f1f1f;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    color: #666;
+    font-size: 0.9rem;
+    user-select: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 420px) {
+    .inputs-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    button.calc-btn {
+      min-width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+<header>BKN Calc - Astrology Utilities</header>
+
+<main>
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="graha" role="tab" aria-selected="true">Graha Ispaṣṭa</button>
+    <button class="tab-btn" data-tab="chandra" role="tab" aria-selected="false">Chandra Ispaṣṭa</button>
+    <button class="tab-btn" data-tab="astro" role="tab" aria-selected="false">Astro Calculator</button>
+  </nav>
+
+  <!-- Graha Ispaṣṭa Panel -->
+  <section id="graha" class="panel active" role="tabpanel" tabindex="0" aria-label="Graha Ispaṣṭa Calculator">
+    <h2 style="color:#90caf9; text-align:center; margin-bottom: 1rem;">Graha Ispaṣṭa Calculator</h2>
+    <form id="grahaForm" onsubmit="return false;">
+      <fieldset>
+        <legend>Today’s Ispaṣṭa</legend>
+        <div class="inputs-grid">
+          <div><label for="todayR">Rāśi (0-11)</label><input type="number" id="todayR" min="0" max="11" value="0" required></div>
+          <div><label for="todayA">Aṁśa (0-29)</label><input type="number" id="todayA" min="0" max="29" value="0" required></div>
+          <div><label for="todayK">Kāla (0-59)</label><input type="number" id="todayK" min="0" max="59" value="0" required></div>
+          <div><label for="todayV">Vikāla (0-59)</label><input type="number" id="todayV" min="0" max="59" value="0" required></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tomorrow’s Ispaṣṭa</legend>
+        <div class="inputs-grid">
+          <div><label for="tomorrowR">Rāśi (0-11)</label><input type="number" id="tomorrowR" min="0" max="11" value="0" required></div>
+          <div><label for="tomorrowA">Aṁśa (0-29)</label><input type="number" id="tomorrowA" min="0" max="29" value="0" required></div>
+          <div><label for="tomorrowK">Kāla (0-59)</label><input type="number" id="tomorrowK" min="0" max="59" value="0" required></div>
+          <div><label for="tomorrowV">Vikāla (0-59)</label><input type="number" id="tomorrowV" min="0" max="59" value="0" required></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Iṣṭa Kāla</legend>
+        <div class="inputs-grid" style="max-width: 240px; margin: auto;">
+          <div><label for="ishtaK">Kāla (0-59)</label><input type="number" id="ishtaK" min="0" max="59" value="0" required></div>
+          <div><label for="ishtaV">Vikāla (0-59)</label><input type="number" id="ishtaV" min="0" max="59" value="0" required></div>
+        </div>
+      </fieldset>
+
+      <div style="text-align:center;">
+        <button class="calc-btn" id="calcGrahaBtn">Calculate Graha Ispaṣṭa</button>
+      </div>
+    </form>
+
+    <div class="result-box" id="grahaResult" aria-live="polite"></div>
+  </section>
+
+  <!-- Chandra Ispaṣṭa Panel -->
+  <section id="chandra" class="panel" role="tabpanel" tabindex="0" aria-label="Chandra Ispaṣṭa Calculator">
+    <h2 style="color:#90caf9; text-align:center; margin-bottom: 1rem;">Chandra Ispaṣṭa Calculator</h2>
+    <form id="chandraForm" onsubmit="return false;">
+      <fieldset>
+        <legend>Bhayat (Ghadi, Pala, Bipala)</legend>
+        <div class="inputs-grid" style="max-width: 360px; margin: auto;">
+          <div><label for="bhayatG">Ghadi (0-60)</label><input type="number" id="bhayatG" min="0" max="60" value="0" required></div>
+          <div><label for="bhayatP">Pala (0-60)</label><input type="number" id="bhayatP" min="0" max="60" value="0" required></div>
+          <div><label for="bhayatB">Bipala (0-60)</label><input type="number" id="bhayatB" min="0" max="60" value="0" required></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Bhabhog (Ghadi, Pala, Bipala)</legend>
+        <div class="inputs-grid" style="max-width: 360px; margin: auto;">
+          <div><label for="bhabhogG">Ghadi (0-60)</label><input type="number" id="bhabhogG" min="0" max="60" value="0" required></div>
+          <div><label for="bhabhogP">Pala (0-60)</label><input type="number" id="bhabhogP" min="0" max="60" value="0" required></div>
+          <div><label for="bhabhogB">Bipala (0-60)</label><input type="number" id="bhabhogB" min="0" max="60" value="0" required></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Gata Nakshatra (decimal, 0 to 27)</legend>
+        <div style="max-width: 180px; margin: auto; text-align:center;">
+          <label for="gataNakshatra">Value</label>
+          <input type="number" id="gataNakshatra" min="0" max="27" step="0.01" value="0" required />
+        </div>
+      </fieldset>
+
+      <div style="text-align:center;">
+        <button class="calc-btn" id="calcChandraBtn">Calculate Chandra Ispaṣṭa</button>
+      </div>
+    </form>
+
+    <div class="result-box" id="chandraResult" aria-live="polite"></div>
+  </section>
+
+  <!-- Astro Calculator Panel -->
+  <section id="astro" class="panel" role="tabpanel" tabindex="0" aria-label="Astro Calculator">
+    <h2 style="color:#90caf9; text-align:center; margin-bottom: 1rem;">Rāśi Aṁśa Kāla Vikāla Calculator</h2>
+    <form id="astroForm" onsubmit="return false;">
+      <fieldset>
+        <legend>Value 1</legend>
+        <div class="inputs-grid">
+          <div><label for="val1R">Rāśi (0-11)</label><input type="number" id="val1R" min="0" max="11" value="0" required></div>
+          <div><label for="val1A">Aṁśa (0-29)</label><input type="number" id="val1A" min="0" max="29" value="0" required></div>
+          <div><label for="val1K">Kāla (0-59)</label><input type="number" id="val1K" min="0" max="59" value="0" required></div>
+          <div><label for="val1V">Vikāla (0-59)</label><input type="number" id="val1V" min="0" max="59" value="0" required></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Value 2</legend>
+        <div class="inputs-grid">
+          <div><label for="val2R">Rāśi (0-11)</label><input type="number" id="val2R" min="0" max="11" value="0" required></div>
+          <div><label for="val2A">Aṁśa (0-29)</label><input type="number" id="val2A" min="0" max="29" value="0" required></div>
+          <div><label for="val2K">Kāla (0-59)</label><input type="number" id="val2K" min="0" max="59" value="0" required></div>
+          <div><label for="val2V">Vikāla (0-59)</label><input type="number" id="val2V" min="0" max="59" value="0" required></div>
+        </div>
+      </fieldset>
+
+      <div class="btn-row">
+        <button class="calc-btn" id="astroAddBtn" type="button">Add</button>
+        <button class="calc-btn" id="astroSubBtn" type="button">Subtract</button>
+        <button class="calc-btn" id="astroClearBtn" type="button">Clear</button>
+      </div>
+    </form>
+
+    <div class="result-box" id="astroResult" aria-live="polite"></div>
+  </section>
+</main>
+
+<footer>Made by Balkrishna</footer>
+
+<script>
+  // Tab switching logic
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+
+      panels.forEach(panel => {
+        panel.classList.remove('active');
+      });
+      const tab = btn.getAttribute('data-tab');
+      document.getElementById(tab).classList.add('active');
+    });
+  });
+
+  // Utility: normalize Rashi-Amsa-Kala-Vikala values with proper carry/borrow
+  function normalizeRashi(r, a, k, v) {
+    // Normalize Vikala (0-59)
+    while (v < 0) { v += 60; k -= 1; }
+    while (v >= 60) { v -= 60; k += 1; }
+    // Normalize Kala (0-59)
+    while (k < 0) { k += 60; a -= 1; }
+    while (k >= 60) { k -= 60; a += 1; }
+    // Normalize Amsa (0-29)
+    while (a < 0) { a += 30; r -= 1; }
+    while (a >= 30) { a -= 30; r += 1; }
+    // Normalize Rashi (0-11)
+    while (r < 0) { r += 12; }
+    while (r >= 12) { r -= 12; }
+    return [r, a, k, v];
+  }
+
+  // Graha Ispaṣṭa calculator
+  document.getElementById('calcGrahaBtn').addEventListener('click', () => {
+    // Read inputs
+    const tR = +document.getElementById('todayR').value;
+    const tA = +document.getElementById('todayA').value;
+    const tK = +document.getElementById('todayK').value;
+    const tV = +document.getElementById('todayV').value;
+
+    const tmR = +document.getElementById('tomorrowR').value;
+    const tmA = +document.getElementById('tomorrowA').value;
+    const tmK = +document.getElementById('tomorrowK').value;
+    const tmV = +document.getElementById('tomorrowV').value;
+
+    const isK = +document.getElementById('ishtaK').value;
+    const isV = +document.getElementById('ishtaV').value;
+
+    // Difference (Tomorrow - Today)
+    let dR = tmR - tR;
+    let dA = tmA - tA;
+    let dK = tmK - tK;
+    let dV = tmV - tV;
+
+    // Normalize difference (borrow)
+    [dR, dA, dK, dV] = normalizeRashi(dR, dA, dK, dV);
+
+    // If Rāśi or Aṁśa difference not zero, multiply full difference by ishta
+    // If both R and A zero, multiply only Kala & Vikala difference by ishta
+    let mulR=0, mulA=0, mulK=0, mulV=0;
+    if(dR !== 0 || dA !== 0){
+      // Convert full diff to Vikala
+      let diffVikala = ((dR*30 + dA)*60 + dK)*60 + dV;
+      let ishtaVikala = isK*60 + isV;
+      let prod = diffVikala * ishtaVikala;
+      // Divide by max value: 12*30*60*60 = 648000
+      prod /= 648000;
+      // Convert back
+      mulR = Math.floor(prod / (30*60*60));
+      prod %= 30*60*60;
+      mulA = Math.floor(prod / (60*60));
+      prod %= 60*60;
+      mulK = Math.floor(prod / 60);
+      mulV = Math.floor(prod % 60);
+    } else {
+      // Multiply only Kala and Vikala difference
+      let diffKalaVikala = dK*60 + dV;
+      let ishtaVikala = isK*60 + isV;
+      let prod = diffKalaVikala * ishtaVikala;
+      prod /= 3600; // max kala * vikala = 60*60=3600
+      mulK = Math.floor(prod / 60);
+      mulV = Math.floor(prod % 60);
+    }
+
+    // Calculate final ispasta
+    let finalR = tR, finalA = tA, finalK = tK, finalV = tV;
+
+    // If tomorrow < today (compare full Vikala)
+    let todayVikala = ((tR*30 + tA)*60 + tK)*60 + tV;
+    let tomorrowVikala = ((tmR*30 + tmA)*60 + tmK)*60 + tmV;
+
+    if(tomorrowVikala < todayVikala){
+      finalK -= mulK;
+      finalV -= mulV;
+      [finalR, finalA, finalK, finalV] = normalizeRashi(finalR, finalA, finalK, finalV);
+    } else {
+      finalK += mulK;
+      finalV += mulV;
+      [finalR, finalA, finalK, finalV] = normalizeRashi(finalR, finalA, finalK, finalV);
+    }
+
+    document.getElementById('grahaResult').textContent = `🪐 Graha Ispaṣṭa: Rāśi: ${finalR}, Aṁśa: ${finalA}, Kāla: ${finalK}, Vikāla: ${finalV}`;
+  });
+
+  // Chandra Ispaṣṭa calculator
+  document.getElementById('calcChandraBtn').addEventListener('click', () => {
+    // Read inputs
+    let bhayatG = +document.getElementById('bhayatG').value;
+    let bhayatP = +document.getElementById('bhayatP').value;
+    let bhayatB = +document.getElementById('bhayatB').value;
+
+    let bhabhogG = +document.getElementById('bhabhogG').value;
+    let bhabhogP = +document.getElementById('bhabhogP').value;
+    let bhabhogB = +document.getElementById('bhabhogB').value;
+
+    let gataNakshatra = +document.getElementById('gataNakshatra').value;
+
+    // Convert Bhayat and Bhabhog to decimal ghadi
+    let bhayat = bhayatG + bhayatP / 60 + bhayatB / 3600;
+    let bhabhog = bhabhogG + bhabhogP / 60 + bhabhogB / 3600;
+
+    if(bhabhog === 0){
+      document.getElementById('chandraResult').textContent = "❌ Bhabhog cannot be zero!";
+      return;
+    }
+
+    // Formula: ((bhayat / bhabhog) + gataNakshatra) * 13°20′
+    // 13°20′ = 13 + 20/60 degrees = 13.3333 degrees
+    let baseAngle = 13 + 20/60;
+
+    let calcValue = ((bhayat / bhabhog) + gataNakshatra) * baseAngle;
+
+    // Convert decimal degree to Rāśi (0-11), Aṁśa (0-29), Kāla (0-59), Vikāla (0-59)
+    let totalDegrees = calcValue % 360; // keep within 360 degrees
+    let rashi = Math.floor(totalDegrees / 30); // 30 degrees per rashi
+    let remainder = totalDegrees % 30;
+
+    let amsa = Math.floor(remainder);
+    remainder = (remainder - amsa) * 60;
+
+    let kala = Math.floor(remainder);
+    remainder = (remainder - kala) * 60;
+
+    let vikala = Math.floor(remainder);
+
+    document.getElementById('chandraResult').textContent = `🌙 Chandra Ispaṣṭa: Rāśi: ${rashi}, Aṁśa: ${amsa}, Kāla: ${kala}, Vikāla: ${vikala}`;
+  });
+
+  // Astro Calculator Add and Subtract functions
+  function addRashi(aR, aA, aK, aV, bR, bA, bK, bV) {
+    let r = aR + bR;
+    let a = aA + bA;
+    let k = aK + bK;
+    let v = aV + bV;
+    return normalizeRashi(r, a, k, v);
+  }
+  function subRashi(aR, aA, aK, aV, bR, bA, bK, bV) {
+    let r = aR - bR;
+    let a = aA - bA;
+    let k = aK - bK;
+    let v = aV - bV;
+    return normalizeRashi(r, a, k, v);
+  }
+
+  // Add button
+  document.getElementById('astroAddBtn').addEventListener('click', () => {
+    const aR = +document.getElementById('val1R').value;
+    const aA = +document.getElementById('val1A').value;
+    const aK = +document.getElementById('val1K').value;
+    const aV = +document.getElementById('val1V').value;
+
+    const bR = +document.getElementById('val2R').value;
+    const bA = +document.getElementById('val2A').value;
+    const bK = +document.getElementById('val2K').value;
+    const bV = +document.getElementById('val2V').value;
+
+    const [r, a, k, v] = addRashi(aR, aA, aK, aV, bR, bA, bK, bV);
+    document.getElementById('astroResult').textContent = `Result: Rāśi: ${r}, Aṁśa: ${a}, Kāla: ${k}, Vikāla: ${v}`;
+  });
+
+  // Subtract button
+  document.getElementById('astroSubBtn').addEventListener('click', () => {
+    const aR = +document.getElementById('val1R').value;
+    const aA = +document.getElementById('val1A').value;
+    const aK = +document.getElementById('val1K').value;
+    const aV = +document.getElementById('val1V').value;
+
+    const bR = +document.getElementById('val2R').value;
+    const bA = +document.getElementById('val2A').value;
+    const bK = +document.getElementById('val2K').value;
+    const bV = +document.getElementById('val2V').value;
+
+    const [r, a, k, v] = subRashi(aR, aA, aK, aV, bR, bA, bK, bV);
+    document.getElementById('astroResult').textContent = `Result: Rāśi: ${r}, Aṁśa: ${a}, Kāla: ${k}, Vikāla: ${v}`;
+  });
+
+  // Clear button
+  document.getElementById('astroClearBtn').addEventListener('click', () => {
+    ['val1R','val1A','val1K','val1V','val2R','val2A','val2K','val2V'].forEach(id => {
+      document.getElementById(id).value = 0;
+    });
+    document.getElementById('astroResult').textContent = '';
+  });
+
+</script>
+
+</body>
+</html>
