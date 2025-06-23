@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BKN Astro Calculator</title>
   <style>
     body {
@@ -52,11 +52,20 @@
       padding: 10px;
       border-radius: 5px;
       margin-top: 10px;
+      white-space: pre-wrap;
     }
     footer {
       text-align: center;
       margin-top: 40px;
       color: #666;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
   </style>
 </head>
@@ -73,15 +82,23 @@
   <section id="graha" class="section active">
     <h3>📅 Today’s Ispaṣṭa</h3>
     <div class="input-group">
-      Rāśi: <input id="todayR"> Aṁśa: <input id="todayA"> Kāla: <input id="todayK"> Vikāla: <input id="todayV">
+      Rāśi: <input id="todayR" type="number" min="0" max="11" />
+      Aṁśa: <input id="todayA" type="number" min="0" max="29" />
+      Kāla: <input id="todayK" type="number" min="0" max="59" />
+      Vikāla: <input id="todayV" type="number" min="0" max="59" />
     </div>
     <h3>📅 Tomorrow’s Ispaṣṭa</h3>
     <div class="input-group">
-      Rāśi: <input id="tomorrowR"> Aṁśa: <input id="tomorrowA"> Kāla: <input id="tomorrowK"> Vikāla: <input id="tomorrowV">
+      Rāśi: <input id="tomorrowR" type="number" min="0" max="11" />
+      Aṁśa: <input id="tomorrowA" type="number" min="0" max="29" />
+      Kāla: <input id="tomorrowK" type="number" min="0" max="59" />
+      Vikāla: <input id="tomorrowV" type="number" min="0" max="59" />
     </div>
-    <h3>🕒 Iṣṭa Kāla</h3>
+    <h3>🕒 Iṣṭa Kāla (Ghadi, Pala, Bipala)</h3>
     <div class="input-group">
-      Kāla: <input id="istaK"> Vikāla: <input id="istaV">
+      Ghadi: <input id="istaG" type="number" min="0" />
+      Pala: <input id="istaP" type="number" min="0" max="59" />
+      Bipala: <input id="istaB" type="number" min="0" max="59" />
     </div>
     <button onclick="calculateGrahaIspasta()">🔁 Calculate Graha Ispaṣṭa</button>
     <div class="result" id="grahaResult">🪐 Result will appear here.</div>
@@ -90,13 +107,25 @@
   <section id="chandra" class="section">
     <h3>🌙 Chandra Ispaṣṭa</h3>
     <div class="input-group">
-      Bhayat: <input id="bhG"> Ghadi <input id="bhP"> Pala <input id="bhB"> Bipala
+      Bhayat: 
+      <input id="bhG" type="number" min="0" />
+      Ghadi
+      <input id="bhP" type="number" min="0" max="59" />
+      Pala
+      <input id="bhB" type="number" min="0" max="59" />
+      Bipala
     </div>
     <div class="input-group">
-      Bhabhog: <input id="bhogG"> Ghadi <input id="bhogP"> Pala <input id="bhogB"> Bipala
+      Bhabhog: 
+      <input id="bhogG" type="number" min="0" />
+      Ghadi
+      <input id="bhogP" type="number" min="0" max="59" />
+      Pala
+      <input id="bhogB" type="number" min="0" max="59" />
+      Bipala
     </div>
     <div class="input-group">
-      Gata Nakṣatra: <input id="nakshatra">
+      Gata Nakṣatra: <input id="nakshatra" type="number" min="0" />
     </div>
     <button onclick="calculateChandra()">🔁 Calculate Chandra Ispaṣṭa</button>
     <div class="result" id="chandraResult">🌙 Result will appear here.</div>
@@ -105,10 +134,16 @@
   <section id="astro" class="section">
     <h3>🧮 Astro Degree Calculator (Subtract)</h3>
     <div class="input-group">
-      First Value → R: <input id="val1R"> A: <input id="val1A"> K: <input id="val1K"> V: <input id="val1V">
+      First Value → R: <input id="val1R" type="number" min="0" max="11" />
+      A: <input id="val1A" type="number" min="0" max="29" />
+      K: <input id="val1K" type="number" min="0" max="59" />
+      V: <input id="val1V" type="number" min="0" max="59" />
     </div>
     <div class="input-group">
-      Second Value → R: <input id="val2R"> A: <input id="val2A"> K: <input id="val2K"> V: <input id="val2V">
+      Second Value → R: <input id="val2R" type="number" min="0" max="11" />
+      A: <input id="val2A" type="number" min="0" max="29" />
+      K: <input id="val2K" type="number" min="0" max="59" />
+      V: <input id="val2V" type="number" min="0" max="59" />
     </div>
     <button onclick="astroSubtract()">➖ Subtract</button>
     <div class="result" id="astroResult">📐 Result will appear here.</div>
@@ -123,9 +158,12 @@
     }
 
     function dmsvToVikala(r, a, k, v) {
-      return (((r * 30 + a) * 60 + k) * 60 + v);
+      return ((r * 30 + a) * 60 + k) * 60 + v;
     }
+
     function vikalaToDMSV(v) {
+      v = Math.round(v); // round only once at the end
+
       const totalMinutes = Math.floor(v / 60);
       const vikala = v % 60;
       const kala = totalMinutes % 60;
@@ -136,41 +174,93 @@
     }
 
     function calculateGrahaIspasta() {
-      let t = dmsvToVikala(
+      const t = dmsvToVikala(
         +document.getElementById('todayR').value,
         +document.getElementById('todayA').value,
         +document.getElementById('todayK').value,
         +document.getElementById('todayV').value
       );
-      let tm = dmsvToVikala(
+
+      const tm = dmsvToVikala(
         +document.getElementById('tomorrowR').value,
         +document.getElementById('tomorrowA').value,
         +document.getElementById('tomorrowK').value,
         +document.getElementById('tomorrowV').value
       );
-      let ista = (+document.getElementById('istaK').value) * 60 + (+document.getElementById('istaV').value);
-      let diff = tm - t;
-      let mult = Math.floor(Math.abs(diff) * ista / 3600);
-      let result = diff >= 0 ? t + mult : t - mult;
-      let [r, a, k, v] = vikalaToDMSV(result);
-      document.getElementById('grahaResult').innerText = `🪐 Graha Ispaṣṭa: Rāśi: ${r}, Aṁśa: ${a}, Kāla: ${k}, Vikāla: ${v}`;
+
+      const ghadi = +document.getElementById('istaG').value;
+      const pala = +document.getElementById('istaP').value;
+      const bipala = +document.getElementById('istaB').value;
+
+      const fractionalPala = pala + bipala / 60;
+      const ista = ghadi * 60 + fractionalPala;
+
+      const diff = tm - t;
+      const mult = Math.round(Math.abs(diff) * ista / 3600); // final rounding
+      const result = diff >= 0 ? t + mult : t - mult;
+
+      const [r, a, k, v] = vikalaToDMSV(result);
+      document.getElementById('grahaResult').innerText =
+        `🪐 Graha Ispaṣṭa:\nRāśi: ${r}, Aṁśa: ${a}, Kāla: ${k}, Vikāla: ${v}`;
     }
 
-    function calculateChandra() {
-      const bh = (+document.getElementById('bhG').value) * 3600 + (+document.getElementById('bhP').value) * 60 + (+document.getElementById('bhB').value);
-      const bhog = (+document.getElementById('bhogG').value) * 3600 + (+document.getElementById('bhogP').value) * 60 + (+document.getElementById('bhogB').value);
-      const nak = +document.getElementById('nakshatra').value;
-      const baseDeg = (bh / bhog + nak) * 800; // 13° 20′ = 800 vikala
-      let [r, a, k, v] = vikalaToDMSV(baseDeg);
-      document.getElementById('chandraResult').innerText = `🌙 Chandra Ispaṣṭa: Rāśi: ${r}, Aṁśa: ${a}, Kāla: ${k}, Vikāla: ${v}`;
-    }
+   function calculateChandra() {
+  // Get Bhayat values
+  const bhG = +document.getElementById('bhG').value;
+  const bhP = +document.getElementById('bhP').value;
+  const bhB = +document.getElementById('bhB').value;
+
+  // Get Bhabhog values
+  const bhogG = +document.getElementById('bhogG').value;
+  const bhogP = +document.getElementById('bhogP').value;
+  const bhogB = +document.getElementById('bhogB').value;
+
+  // Convert both to total Bipala
+  const bhayat = bhG * 3600 + bhP * 60 + bhB;
+  const bhabhog = bhogG * 3600 + bhogP * 60 + bhogB;
+
+  // Calculate ratio with full decimal precision, no truncation here
+  const ratio = bhabhog !== 0 ? bhayat / bhabhog : 0;
+
+  // Add Nakshatra
+  const nak = +document.getElementById('nakshatra').value;
+  const total = (ratio + nak) * 48000;
+
+  // Convert Bipala to Rāśi, Aṁśa, Kāla, Vikala
+  const rasi = Math.floor(total / 108000);
+  const rem1 = total % 108000;
+
+  const amsa = Math.floor(rem1 / 3600);
+  const rem2 = rem1 % 3600;
+
+  const kala = Math.floor(rem2 / 60);
+  const vikalaRaw = rem2 % 60;
+
+  // Round vikala only here, for final output
+  const vikala = vikalaRaw >= 0.5 ? Math.ceil(vikalaRaw) : Math.floor(vikalaRaw);
+
+  // Display result
+  document.getElementById('chandraResult').innerText =
+    `🌙 Chandra Ispaṣṭa: Rāśi: ${rasi}, Aṁśa: ${amsa}, Kāla: ${kala}, Vikala: ${vikala}`;
+}
 
     function astroSubtract() {
-      const v1 = dmsvToVikala(+document.getElementById('val1R').value, +document.getElementById('val1A').value, +document.getElementById('val1K').value, +document.getElementById('val1V').value);
-      const v2 = dmsvToVikala(+document.getElementById('val2R').value, +document.getElementById('val2A').value, +document.getElementById('val2K').value, +document.getElementById('val2V').value);
+      const v1 = dmsvToVikala(
+        +document.getElementById('val1R').value,
+        +document.getElementById('val1A').value,
+        +document.getElementById('val1K').value,
+        +document.getElementById('val1V').value
+      );
+      const v2 = dmsvToVikala(
+        +document.getElementById('val2R').value,
+        +document.getElementById('val2A').value,
+        +document.getElementById('val2K').value,
+        +document.getElementById('val2V').value
+      );
       const diff = Math.abs(v1 - v2);
       const [r, a, k, v] = vikalaToDMSV(diff);
-      document.getElementById('astroResult').innerText = `📐 Difference: ${r} Rāśi, ${a} Aṁśa, ${k} Kāla, ${v} Vikāla`;
+      document.getElementById('astroResult').innerText =
+        `📐 Difference: ${r} Rāśi, ${a} Aṁśa, ${k} Kāla, ${v} Vikāla`;
     }
   </script>
 </body>
